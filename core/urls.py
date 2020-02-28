@@ -1,8 +1,12 @@
+#   Copyright (c) Code Written and Tested by Ahmed Emad in 28/02/2020, 16:53
+
 from django.urls import path
 
 from core.views import RedirectView, ShortenView
 
+app_name = 'core'
+
 urlpatterns = [
     path('shorten', ShortenView.as_view(), name='shorten'),
-    path('<slug:url>', RedirectView.as_view(), name='redirect')
+    path('<str:url>', RedirectView.as_view(), name='redirect')
 ]

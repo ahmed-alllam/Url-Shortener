@@ -1,3 +1,5 @@
+#   Copyright (c) Code Written and Tested by Ahmed Emad in 28/02/2020, 16:53
+
 import copy
 import uuid
 
@@ -9,10 +11,10 @@ from core.models import UrlModel
 def generate_url():
     """generates a new unique url slug"""
 
-    slug = uuid.uuid4().get_hex()[:6]
+    slug = uuid.uuid4().hex[:6]
 
     while UrlModel.objects.filter(short_url=slug):
-        slug = uuid.uuid4().get_hex()[:6]
+        slug = uuid.uuid4().hex[:6]
 
     return slug
 
@@ -20,7 +22,7 @@ def generate_url():
 class UrlSerializer(serializers.ModelSerializer):
     """Serializers for url model"""
 
-    short_url = serializers.CharField(max_length=6)
+    short_url = serializers.CharField(max_length=6, required=False)
 
     class Meta:
         model = UrlModel
@@ -29,9 +31,7 @@ class UrlSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         if '://' not in data['original_url']:  # no url scheme
             new_data = copy.deepcopy(data)
-            print("old: " + data['original_url'])
             new_data['original_url'] = 'http://' + data['original_url']
-            print("new: " + new_data['original_url'])
             return super().to_internal_value(new_data)
         return super().to_internal_value(data)
 
@@ -45,7 +45,7 @@ class UrlSerializer(serializers.ModelSerializer):
         if UrlModel.objects.filter(short_url=url):
             num = 2
             while UrlModel.objects.filter(short_url=url):
-                if num == 1000:
+                if num == 100:
                     raise serializers.ValidationError('this short url cant be registered')
                 url = short_url + '-' + str(num)
                 num = num + 1
