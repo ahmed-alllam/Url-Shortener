@@ -25,6 +25,22 @@ class UrlSerializer(serializers.ModelSerializer):
         model = UrlModel
         exclude = 'id'
 
+    def validate_short_url(self, short_url):
+        """validates the passed short url"""
+
+        # raises error if the slug entered by user exists and
+        # can't even be added a num to its end
+
+        if UrlModel.objects.filter(short_url=short_url):
+            num = 2
+            while UrlModel.objects.filter(short_url=short_url):
+                if num == 1000:
+                    raise serializers.ValidationError('this short url cant be registered')
+                short_url = short_url + '-' + num
+                num = num + 1
+
+            self.validated_data['short_url'] = short_url
+
     def create(self, validated_data):
         """creates a new url to the db"""
 
@@ -32,14 +48,6 @@ class UrlSerializer(serializers.ModelSerializer):
         short_url = validated_data.get('short_url', '')
         if not short_url:
             short_url = generate_url()
-        else:
-            # if the slug entered by user exists, add a number
-            # to it to make it unique
-            if UrlModel.objects.filter(short_url=short_url):
-                num = 2
-                while UrlModel.objects.filter(short_url=short_url):
-                    short_url = short_url + '-' + num
-                    num = num + 1
 
         url_instance = UrlModel(short_url=short_url, **validated_data)
         url_instance.save()

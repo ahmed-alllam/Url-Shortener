@@ -1,8 +1,8 @@
 from django.urls import path
 
-from core.views import shorten, redirect
+from core.views import RedirectView, ShortenView
 
 urlpatterns = [
-    path('shorten', shorten),
-    path('<slug:url>', redirect)
+    path('shorten', ShortenView.as_view(), name='shorten'),
+    path('<slug:url>', RedirectView.as_view(), name='redirect')
 ]
