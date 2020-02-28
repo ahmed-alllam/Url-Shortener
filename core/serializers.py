@@ -1,3 +1,4 @@
+import copy
 import uuid
 
 from rest_framework import serializers
@@ -23,7 +24,16 @@ class UrlSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UrlModel
-        exclude = 'id'
+        exclude = ('id',)
+
+    def to_internal_value(self, data):
+        if '://' not in data['original_url']:  # no url scheme
+            new_data = copy.deepcopy(data)
+            print("old: " + data['original_url'])
+            new_data['original_url'] = 'http://' + data['original_url']
+            print("new: " + new_data['original_url'])
+            return super().to_internal_value(new_data)
+        return super().to_internal_value(data)
 
     def validate_short_url(self, short_url):
         """validates the passed short url"""
@@ -31,21 +41,22 @@ class UrlSerializer(serializers.ModelSerializer):
         # raises error if the slug entered by user exists and
         # can't even be added a num to its end
 
-        if UrlModel.objects.filter(short_url=short_url):
+        url = short_url  # just an alias
+        if UrlModel.objects.filter(short_url=url):
             num = 2
-            while UrlModel.objects.filter(short_url=short_url):
+            while UrlModel.objects.filter(short_url=url):
                 if num == 1000:
                     raise serializers.ValidationError('this short url cant be registered')
-                short_url = short_url + '-' + num
+                url = short_url + '-' + str(num)
                 num = num + 1
 
-            self.validated_data['short_url'] = short_url
+        return url
 
     def create(self, validated_data):
         """creates a new url to the db"""
 
         # if user didn't pass url generate a new one
-        short_url = validated_data.get('short_url', '')
+        short_url = validated_data.pop('short_url', '')
         if not short_url:
             short_url = generate_url()
 

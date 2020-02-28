@@ -12,24 +12,20 @@ class RedirectView(APIView):
 
     serializer_class = UrlSerializer
 
-    def get(self, request, short_url):
+    def get(self, request, url):
         """redirects to the requested url
 
         Arguments:
             request: the request made by user and
                      used to get the post bosy
-            short_url: the url entered by user in url
+            url: the url entered by user in url
 
         Returns:
                 HTTP 302 Response redirect to the original url
                 HTTP 404 Response if url doesn't exist
         """
 
-        original_url = get_object_or_404(UrlModel, short_url=short_url).original_url
-
-        if not original_url.starts_with('http://'):
-            original_url = 'http://' + original_url
-
+        original_url = get_object_or_404(UrlModel, short_url=url).original_url
         return HttpResponseRedirect(redirect_to=original_url)
 
 
