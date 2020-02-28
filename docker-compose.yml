@@ -1,13 +1,13 @@
 version: '3'
 
 services:
-  Url-Shortener:
+  url-shortener:
     build:
       context: .
     ports:
       - "80:8000"
     volumes:
-      - .:/Url-Shortener
+      - .:/url-shortener
     command: >
       sh -c "python3 manage.py makemigrations &&
       python3 manage.py migrate &&
