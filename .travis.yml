@@ -9,4 +9,4 @@ before_script:
   - pip install docker-compose
 
 script:
-  - docker-compose run --rm Url-Shortener sh -c "python3 manage.py test"
+  - docker-compose run --rm url-shortener sh -c "python3 manage.py test"
